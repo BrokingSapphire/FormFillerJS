@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "A lightweight Node.js tool for dynamically filling PDF forms asynchronously using pdf-lib. Supports user input, CLI-based interaction, and environment configuration.",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "start": "node index.js"
   },
