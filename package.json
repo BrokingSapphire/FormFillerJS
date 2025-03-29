@@ -1,0 +1,24 @@
+{
+  "name": "formfillerjs",
+  "version": "1.0.0",
+  "description": "A lightweight Node.js tool for dynamically filling PDF forms asynchronously using pdf-lib. Supports user input, CLI-based interaction, and environment configuration.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": [
+    "pdf",
+    "pdf-lib",
+    "form-filling",
+    "dynamic-pdf",
+    "nodejs",
+    "async",
+    "dotenv"
+  ],
+  "author": "Nakul Thakur",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^16.0.3",
+    "pdf-lib": "^1.17.1"
+  }
+}
