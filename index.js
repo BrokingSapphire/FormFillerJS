@@ -1,5 +1,6 @@
 import { PDFDocument } from 'pdf-lib';
 import fs from 'fs';
+import { rgb } from 'pdf-lib';
 
 async function fillPDF(inputPath, outputPath) {
     const pdfBytes = fs.readFileSync(inputPath);
@@ -17,5 +18,10 @@ page.drawText('John Doe', {
     size: 12,
     color: rgb(0, 0, 0),
 });
+
+const pdfBytesUpdated = await pdfDoc.save();
+fs.writeFileSync(outputPath, pdfBytesUpdated);
+
+console.log("PDF saved successfully at", outputPath);
 
 fillPDF('input.pdf', 'output.pdf');
