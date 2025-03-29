@@ -33,8 +33,8 @@ async function fillPDF(inputPath, outputPath, fields, commonSize = 12, commonCol
 // Example: Fields to fill in the PDF
 const fields = [
     { text: 'John Doe', x: 100, y: 500 },      // Name field
-    { text: '01/01/1990', x: 100, y: 450 },    // DOB field
-    { text: '1234-5678-9012', x: 100, y: 400 }, // ID field
+    { text: '01/01/1990', x: 100, y: 480 },    // DOB field
+    { text: '1234-5678-9012', x: 100, y: 460 }, // ID field
 ];
 
 // Get file paths from command-line arguments or use defaults
