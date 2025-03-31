@@ -22,8 +22,11 @@ export class PDFController {
         return;
       }
       
-      // Generate output filename if not provided
-      const finalOutputName = outputName || `filled_${Date.now()}.pdf`;
+      // Generate unique output filename if not provided
+      const uniqueId = Date.now() + '-' + Math.random().toString(36).substring(2, 10);
+      const finalOutputName = outputName 
+        ? `${uniqueId}-${outputName}` 
+        : `filled_${uniqueId}.pdf`;
       
       // Call service to fill PDF
       const filledPdfPath = await pdfService.fillPDF(

@@ -15,8 +15,11 @@ export class PDFController {
                 res.status(400).json({ error: 'Invalid request format' });
                 return;
             }
-            // Generate output filename if not provided
-            const finalOutputName = outputName || `filled_${Date.now()}.pdf`;
+            // Generate unique output filename if not provided
+            const uniqueId = Date.now() + '-' + Math.random().toString(36).substring(2, 10);
+            const finalOutputName = outputName
+                ? `${uniqueId}-${outputName}`
+                : `filled_${uniqueId}.pdf`;
             // Call service to fill PDF
             const filledPdfPath = await pdfService.fillPDF(templateName, finalOutputName, fields, options);
             res.status(200).json({

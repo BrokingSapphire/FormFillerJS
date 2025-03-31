@@ -29,7 +29,8 @@ export class PDFService {
             if (!fs.existsSync(inputPath)) {
                 throw new Error(`Template not found: ${templateName}`);
             }
-            const pdfBytes = fs.readFileSync(inputPath);
+            // Use promises for file operations to prevent blocking
+            const pdfBytes = await fs.promises.readFile(inputPath);
             const pdfDoc = await PDFDocument.load(pdfBytes);
             const page = pdfDoc.getPages()[0];
             // Set default options
@@ -52,7 +53,7 @@ export class PDFService {
             });
             // Save the modified PDF
             const pdfBytesUpdated = await pdfDoc.save();
-            fs.writeFileSync(outputPath, pdfBytesUpdated);
+            await fs.promises.writeFile(outputPath, pdfBytesUpdated);
             return outputPath;
         }
         catch (error) {
