@@ -13,8 +13,6 @@ Fills a PDF template with text at specified positions.
 **Request Body:**
 
 ```json
-json
-Copy
 {
   "templateName": "template.pdf",
   "outputName": "filled_form.pdf",
@@ -22,12 +20,14 @@ Copy
     {
       "text": "John Doe",
       "x": 100,
-      "y": 500
+      "y": 500,
+      "page": 0
     },
     {
       "text": "01/01/1990",
       "x": 100,
-      "y": 480
+      "y": 480,
+      "page": 0
     }
   ],
   "options": {
@@ -44,8 +44,6 @@ Copy
 **Success Response:**
 
 ```json
-json
-Copy
 {
   "success": true,
   "message": "PDF filled successfully",
