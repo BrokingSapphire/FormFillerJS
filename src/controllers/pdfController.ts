@@ -65,6 +65,30 @@ export class PDFController {
       res.status(500).json({ error: error.message });
     }
   }
+  
+  async getTemplateInfo(req: Request, res: Response): Promise<void> {
+    try {
+      const { templateName } = req.params;
+      
+      if (!templateName) {
+        res.status(400).json({ error: 'Template name is required' });
+        return;
+      }
+      
+      // Get template information from service
+      const templateInfo = await pdfService.getTemplateInfo(templateName);
+      
+      res.status(200).json({
+        success: true,
+        template: templateInfo
+      });
+    } catch (error: any) {
+      res.status(500).json({ 
+        success: false,
+        error: error.message 
+      });
+    }
+  }
 }
 
 export default new PDFController();

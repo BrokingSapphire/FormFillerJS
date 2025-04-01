@@ -2,6 +2,7 @@ export interface PDFField {
     text: string;
     x: number;
     y: number;
+    page?: number;
 }
 export interface PDFOptions {
     fontSize?: number;

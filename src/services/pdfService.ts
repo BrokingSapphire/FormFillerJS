@@ -45,7 +45,8 @@ export class PDFService {
       // Use promises for file operations to prevent blocking
       const pdfBytes = await fs.promises.readFile(inputPath);
       const pdfDoc = await PDFDocument.load(pdfBytes);
-      const page = pdfDoc.getPages()[0];
+      const pages = pdfDoc.getPages();
+      const pageCount = pages.length;
 
       // Set default options
       const fontSize = options?.fontSize || 12;
@@ -57,8 +58,19 @@ export class PDFService {
       // Embed font
       const font = await pdfDoc.embedFont(fontName);
 
-      // Fill fields
+      // Fill fields, respecting page numbers
       fields.forEach(field => {
+        // Get the target page (default to first page if not specified)
+        const pageIndex = field.page !== undefined ? field.page : 0;
+        
+        // Validate page number
+        if (pageIndex < 0 || pageIndex >= pageCount) {
+          console.warn(`Warning: Page ${pageIndex} does not exist in document with ${pageCount} pages. Field "${field.text}" skipped.`);
+          return;
+        }
+        
+        const page = pages[pageIndex];
+        
         page.drawText(field.text, {
           x: field.x,
           y: field.y,
@@ -75,6 +87,37 @@ export class PDFService {
       return outputPath;
     } catch (error: any) {
       throw new Error(`Error filling PDF: ${error.message}`);
+    }
+  }
+
+  async getTemplateInfo(templateName: string): Promise<{
+    name: string;
+    pageCount: number;
+    pages: Array<{ width: number; height: number }>;
+  }> {
+    try {
+      const inputPath = path.join(this.templatesDir, templateName);
+      
+      if (!fs.existsSync(inputPath)) {
+        throw new Error(`Template not found: ${templateName}`);
+      }
+      
+      const pdfBytes = await fs.promises.readFile(inputPath);
+      const pdfDoc = await PDFDocument.load(pdfBytes);
+      const pages = pdfDoc.getPages();
+      
+      const pageInfo = pages.map(page => ({
+        width: page.getWidth(),
+        height: page.getHeight()
+      }));
+      
+      return {
+        name: templateName,
+        pageCount: pages.length,
+        pages: pageInfo
+      };
+    } catch (error: any) {
+      throw new Error(`Error getting template info: ${error.message}`);
     }
   }
 }
