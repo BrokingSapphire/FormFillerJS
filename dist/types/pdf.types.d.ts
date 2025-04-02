@@ -1,8 +1,12 @@
 export interface PDFField {
-    text: string;
+    text?: string;
+    imageUrl?: string;
     x: number;
     y: number;
     page?: number;
+    width?: number;
+    height?: number;
+    contentType: 'text' | 'image';
 }
 export interface PDFOptions {
     fontSize?: number;

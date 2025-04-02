@@ -4,13 +4,13 @@
   "description": "A lightweight Node.js tool for dynamically filling PDF forms asynchronously using pdf-lib. Supports user input, CLI-based interaction, and environment configuration.",
   "main": "dist/server.js",
   "type": "module",
-"scripts": {
-  "start": "node dist/server.js",
-  "build": "tsc",
-  "dev": "tsc && node dist/server.js",
-  "watch-and-run": "nodemon --watch dist/ dist/server.js",
-  "watch": "tsc --watch"
-},
+  "scripts": {
+    "start": "node dist/server.js",
+    "build": "tsc",
+    "dev": "tsc && node dist/server.js",
+    "watch-and-run": "nodemon --watch dist/ dist/server.js",
+    "watch": "tsc --watch"
+  },
   "keywords": [
     "pdf",
     "pdf-lib",
@@ -26,6 +26,7 @@
     "body-parser": "^2.2.0",
     "dotenv": "^16.0.3",
     "express": "^5.1.0",
+    "node-fetch": "^3.3.2",
     "pdf-lib": "^1.17.1"
   },
   "devDependencies": {

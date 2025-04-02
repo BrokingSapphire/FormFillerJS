@@ -5,6 +5,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import { PDFField, PDFOptions } from '../types/pdf.types.js';
+import fetch from 'node-fetch';
 
 // ESM compatibility for __dirname
 const __filename = fileURLToPath(import.meta.url);
@@ -58,27 +59,100 @@ export class PDFService {
       // Embed font
       const font = await pdfDoc.embedFont(fontName);
 
-      // Fill fields, respecting page numbers
-      fields.forEach(field => {
+      // Process each field
+      for (const field of fields) {
         // Get the target page (default to first page if not specified)
         const pageIndex = field.page !== undefined ? field.page : 0;
         
         // Validate page number
         if (pageIndex < 0 || pageIndex >= pageCount) {
-          console.warn(`Warning: Page ${pageIndex} does not exist in document with ${pageCount} pages. Field "${field.text}" skipped.`);
-          return;
+          console.warn(`Warning: Page ${pageIndex} does not exist in document with ${pageCount} pages. Field skipped.`);
+          continue;
         }
         
         const page = pages[pageIndex];
         
-        page.drawText(field.text, {
-          x: field.x,
-          y: field.y,
-          size: fontSize,
-          color: fontColor,
-          font: font,
-        });
-      });
+        // Process based on content type
+        if (field.contentType === 'text' && field.text) {
+          page.drawText(field.text, {
+            x: field.x,
+            y: field.y,
+            size: fontSize,
+            color: fontColor,
+            font: font,
+          });
+        } 
+        else if (field.contentType === 'image' && field.imageUrl) {
+          try {
+            console.log(`Processing image URL: ${field.imageUrl}`);
+            
+            // Fetch the image
+            const response = await fetch(field.imageUrl);
+            if (!response.ok) {
+              throw new Error(`Failed to fetch image: ${response.statusText}`);
+            }
+            
+            // Get content type from the response headers
+            const contentType = response.headers.get('content-type');
+            console.log(`Response content type: ${contentType}`);
+            
+            const imageBytes = await response.arrayBuffer();
+            
+            // Determine image type from Content-Type header or URL
+            let image;
+            if (contentType?.includes('image/jpeg') || 
+                field.imageUrl.toLowerCase().endsWith('.jpg') || 
+                field.imageUrl.toLowerCase().endsWith('.jpeg')) {
+              image = await pdfDoc.embedJpg(imageBytes);
+            } 
+            else if (contentType?.includes('image/png') || 
+                    field.imageUrl.toLowerCase().endsWith('.png')) {
+              image = await pdfDoc.embedPng(imageBytes);
+            }
+            else {
+              // Try to detect image format from the first few bytes
+              const bytes = new Uint8Array(imageBytes).slice(0, 8);
+              const isPNG = bytes[0] === 0x89 && 
+                          bytes[1] === 0x50 && 
+                          bytes[2] === 0x4E && 
+                          bytes[3] === 0x47;
+              const isJPG = bytes[0] === 0xFF && 
+                          bytes[1] === 0xD8;
+              
+              console.log(`Magic bytes check - isPNG: ${isPNG}, isJPG: ${isJPG}`);
+              
+              if (isPNG) {
+                image = await pdfDoc.embedPng(imageBytes);
+              } 
+              else if (isJPG) {
+                image = await pdfDoc.embedJpg(imageBytes);
+              }
+              else {
+                throw new Error('Unsupported image format. Only JPG and PNG are supported.');
+              }
+            }
+            
+            // Get dimensions
+            const imgWidth = field.width || image.width;
+            const imgHeight = field.height || image.height;
+            
+            // Draw the image
+            page.drawImage(image, {
+              x: field.x,
+              y: field.y,
+              width: imgWidth,
+              height: imgHeight,
+            });
+            
+            console.log(`Image successfully embedded at (${field.x}, ${field.y}) with dimensions ${imgWidth}x${imgHeight}`);
+          } catch (imgError: any) {
+            console.error(`Error processing image: ${imgError.message}`);
+            continue;
+          }
+        } else {
+          console.warn(`Warning: Field has invalid content type or missing required data.`);
+        }
+      }
 
       // Save the modified PDF
       const pdfBytesUpdated = await pdfDoc.save();

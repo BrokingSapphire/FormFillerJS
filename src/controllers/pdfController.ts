@@ -22,6 +22,24 @@ export class PDFController {
         return;
       }
       
+      // Validate that each field has a valid content type
+      for (const field of fields) {
+        if (!field.contentType) {
+          res.status(400).json({ error: 'Each field must specify a contentType (text or image)' });
+          return;
+        }
+        
+        if (field.contentType === 'text' && !field.text) {
+          res.status(400).json({ error: 'Fields with contentType "text" must include text property' });
+          return;
+        }
+        
+        if (field.contentType === 'image' && !field.imageUrl) {
+          res.status(400).json({ error: 'Fields with contentType "image" must include imageUrl property' });
+          return;
+        }
+      }
+      
       // Generate unique output filename if not provided
       const uniqueId = Date.now() + '-' + Math.random().toString(36).substring(2, 10);
       const finalOutputName = outputName 
